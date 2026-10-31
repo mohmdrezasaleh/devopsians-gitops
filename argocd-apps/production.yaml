@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: devopsians-production
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: git@195.24.237.134:devops/devopsians-gitops.git
+    targetRevision: main
+    path: apps/devopsians-workload
+    helm:
+      valueFiles:
+        - values.yaml
+        - values-prod.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: production
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
