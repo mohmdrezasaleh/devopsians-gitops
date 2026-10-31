@@ -1,0 +1,17 @@
+fastapi:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+redis:
+  persistence:
+    size: 1Gi
+
+ingress:
+  host: staging.devopsians.local
+  tlsSecret: staging-devopsians-tls
