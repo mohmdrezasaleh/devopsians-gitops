@@ -1,0 +1,2 @@
+Release {{ .Release.Name }} deployed in namespace {{ .Release.Namespace }}.
+Redis service: {{ .Release.Name }}-redis:{{ .Values.redis.service.port }}

@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-fastapi
+  labels:
+    app: {{ .Release.Name }}-fastapi
+spec:
+  replicas: {{ .Values.fastapi.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-fastapi
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-fastapi
+    spec:
+      containers:
+        - name: fastapi
+          image: "{{ .Values.fastapi.image.repository }}:{{ .Values.fastapi.image.tag }}"
+          imagePullPolicy: {{ .Values.fastapi.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.fastapi.service.port }}
+          env:
+            - name: REDIS_HOST
+              value: "{{ .Release.Name }}-redis"
+            - name: REDIS_PORT
+              value: {{ .Values.fastapi.env.redisPort | quote }}
+            - name: REDIS_DB
+              value: {{ .Values.fastapi.env.redisDb | quote }}
+            - name: REDIS_PASSWORD
+              value: ""
+          resources:
+            {{- toYaml .Values.fastapi.resources | nindent 12 }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.fastapi.probes.path }}
+              port: {{ .Values.fastapi.service.port }}
+            failureThreshold: {{ .Values.fastapi.probes.startup.failureThreshold }}
+            periodSeconds: {{ .Values.fastapi.probes.startup.periodSeconds }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.fastapi.probes.path }}
+              port: {{ .Values.fastapi.service.port }}
+            initialDelaySeconds: {{ .Values.fastapi.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.fastapi.probes.liveness.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.fastapi.probes.path }}
+              port: {{ .Values.fastapi.service.port }}
+            initialDelaySeconds: {{ .Values.fastapi.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.fastapi.probes.readiness.periodSeconds }}
