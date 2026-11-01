@@ -1,14 +1,12 @@
 fastapi:
   replicaCount: 3
   image:
-    repository: 195.24.237.134:5050/devops/devopsians-app 
+    repository: 195.24.237.134:5050/devops/devopsians-app
     tag: "a88dd393"
     pullPolicy: IfNotPresent
-
   imagePullSecrets:
-  - name: gitlab-registry  
-  
-service:
+    - name: gitlab-registry
+  service:
     port: 8000
   env:
     redisPort: "6379"
