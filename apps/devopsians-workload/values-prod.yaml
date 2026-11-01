@@ -1,4 +1,6 @@
 fastapi:
+  image:
+    tag: "a88dd393"
   replicaCount: 3
   resources:
     requests:

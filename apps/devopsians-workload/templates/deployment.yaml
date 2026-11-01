@@ -14,6 +14,10 @@ spec:
       labels:
         app: {{ .Release.Name }}-fastapi
     spec:
+      {{- with .Values.fastapi.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: fastapi
           image: "{{ .Values.fastapi.image.repository }}:{{ .Values.fastapi.image.tag }}"
