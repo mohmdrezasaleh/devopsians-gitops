@@ -1,0 +1,64 @@
+prometheus:
+  prometheusSpec:
+    retention: 3d
+    resources:
+      requests: {cpu: 100m, memory: 400Mi}
+      limits: {memory: 900Mi}
+    nodeSelector:
+      kubernetes.io/hostname: worker-1
+    serviceMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn-replicated
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 5Gi
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: selfsigned-cluster-issuer
+    hosts: [prometheus.devopsians.local]
+    tls:
+      - secretName: prometheus-tls
+        hosts: [prometheus.devopsians.local]
+
+grafana:
+  adminPassword: "CHANGE_ME"
+  nodeSelector:
+    kubernetes.io/hostname: worker-2
+  resources:
+    requests: {cpu: 50m, memory: 150Mi}
+    limits: {memory: 300Mi}
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: selfsigned-cluster-issuer
+    hosts: [grafana.devopsians.local]
+    tls:
+      - secretName: grafana-tls
+        hosts: [grafana.devopsians.local]
+
+alertmanager:
+  alertmanagerSpec:
+    resources:
+      requests: {cpu: 10m, memory: 50Mi}
+      limits: {memory: 120Mi}
+    nodeSelector:
+      kubernetes.io/hostname: worker-2
+
+kube-state-metrics:
+  nodeSelector:
+    kubernetes.io/hostname: worker-2
+prometheusOperator:
+  nodeSelector:
+    kubernetes.io/hostname: worker-2
