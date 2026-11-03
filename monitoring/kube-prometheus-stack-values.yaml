@@ -32,8 +32,8 @@ grafana:
   nodeSelector:
     kubernetes.io/hostname: worker-2
   resources:
-    requests: {cpu: 50m, memory: 150Mi}
-    limits: {memory: 300Mi}
+    requests: {cpu: 50m, memory: 200Mi}
+    limits: {memory: 512Mi}
   sidecar:
     dashboards:
       enabled: true
@@ -57,8 +57,13 @@ alertmanager:
       kubernetes.io/hostname: worker-2
 
 kube-state-metrics:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/kube-state-metrics
+    tag: latest
   nodeSelector:
     kubernetes.io/hostname: worker-2
+
 prometheusOperator:
   nodeSelector:
     kubernetes.io/hostname: worker-2
