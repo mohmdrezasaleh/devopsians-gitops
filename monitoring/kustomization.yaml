@@ -4,3 +4,4 @@ resources:
   - service-monitors/app-servicemonitor.yaml
   - service-monitors/redis-servicemonitor.yaml
   - alert-rules/app-alerts.yaml
+  - dashboards/golden-signals-configmap.yaml
