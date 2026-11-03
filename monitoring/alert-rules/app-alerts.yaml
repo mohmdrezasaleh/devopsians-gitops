@@ -1,0 +1,37 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: devopsians-app-alerts
+  namespace: monitoring
+spec:
+  groups:
+    - name: devopsians.app
+      rules:
+        - alert: HighErrorRate
+          expr: |
+            (
+              sum(rate(http_requests_total{namespace="production",status="5xx"}[1m]))
+              /
+              sum(rate(http_requests_total{namespace="production"}[1m]))
+            ) * 100 > 5
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "High 5xx error rate on devopsians API"
+            description: "5xx error ratio is above 5% for more than 2 minutes."
+        - alert: PodMemorySaturation
+          expr: |
+            max by (namespace, pod, container) (
+              container_memory_working_set_bytes{namespace="production",container!="",container!="POD"}
+            )
+            /
+            max by (namespace, pod, container) (
+              kube_pod_container_resource_limits{namespace="production",resource="memory"}
+            ) * 100 > 85
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Pod {{ $labels.pod }} memory above 85% of limit"
+            description: "Container {{ $labels.container }} in {{ $labels.pod }} is above 85% of its memory limit."
