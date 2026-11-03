@@ -8,5 +8,6 @@ spec:
   selector:
     app: {{ .Release.Name }}-fastapi
   ports:
-    - port: {{ .Values.fastapi.service.port }}
+    - name: http
+      port: {{ .Values.fastapi.service.port }}
       targetPort: {{ .Values.fastapi.service.port }}

@@ -48,6 +48,11 @@ redis:
     storageClass: longhorn-replicated
     size: 1Gi
     accessMode: ReadWriteOnce
+  exporter:
+    image:
+      repository: oliver006/redis_exporter
+      tag: "v1.67.0"
+
 
 ingress:
   enabled: true
