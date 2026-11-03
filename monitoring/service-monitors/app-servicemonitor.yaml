@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: devopsians-fastapi
+  namespace: monitoring
+spec:
+  namespaceSelector:
+    matchNames: [production]
+  selector:
+    matchLabels:
+      app: devopsians-production-fastapi
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s

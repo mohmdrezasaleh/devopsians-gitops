@@ -1,0 +1,14 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: devopsians-redis
+  namespace: monitoring
+spec:
+  namespaceSelector:
+    matchNames: [production]
+  selector:
+    matchLabels:
+      app: devopsians-production-redis
+  endpoints:
+    - port: metrics
+      interval: 15s
