@@ -67,3 +67,39 @@ kube-state-metrics:
 prometheusOperator:
   nodeSelector:
     kubernetes.io/hostname: worker-2
+
+alertmanager:
+  config:
+    route:
+      receiver: telegram
+      group_by: [alertname, namespace]
+      group_wait: 10s
+      group_interval: 1m
+      repeat_interval: 4h
+      routes:
+        - receiver: "null"
+          matchers:
+            - alertname = "Watchdog"
+    receivers:
+      - name: "null"
+      - name: telegram
+        telegram_configs:
+          - bot_token_file: /etc/alertmanager/secrets/telegram-bot-token/token
+            chat_id: 624041091
+            parse_mode: HTML
+            send_resolved: true
+            message: |
+              {{ range .Alerts }}
+              <b>{{ .Status | toUpper }}</b> {{ .Labels.alertname }}
+              severity: {{ .Labels.severity }}
+              {{ .Annotations.summary }}
+              {{ .Annotations.description }}
+              {{ end }}
+  alertmanagerSpec:
+    secrets:
+      - telegram-bot-token
+    resources:
+      requests: {cpu: 10m, memory: 50Mi}
+      limits: {memory: 120Mi}
+    nodeSelector:
+      kubernetes.io/hostname: worker-2
