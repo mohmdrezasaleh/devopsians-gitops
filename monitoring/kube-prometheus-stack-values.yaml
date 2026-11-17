@@ -4,8 +4,6 @@ prometheus:
     resources:
       requests: {cpu: 100m, memory: 400Mi}
       limits: {memory: 900Mi}
-    nodeSelector:
-      kubernetes.io/hostname: worker-1
     serviceMonitorSelectorNilUsesHelmValues: false
     ruleSelectorNilUsesHelmValues: false
     podMonitorSelectorNilUsesHelmValues: false
@@ -28,9 +26,8 @@ prometheus:
         hosts: [prometheus.devopsians.local]
 
 grafana:
+  replicas: 0
   adminPassword: "CHANGE_ME"
-  nodeSelector:
-    kubernetes.io/hostname: worker-2
   resources:
     requests: {cpu: 50m, memory: 200Mi}
     limits: {memory: 512Mi}
@@ -50,23 +47,18 @@ grafana:
 
 alertmanager:
   alertmanagerSpec:
+    replicas: 0
     resources:
       requests: {cpu: 10m, memory: 50Mi}
       limits: {memory: 120Mi}
-    nodeSelector:
-      kubernetes.io/hostname: worker-2
 
 kube-state-metrics:
   image:
     registry: docker.io
     repository: bitnamilegacy/kube-state-metrics
     tag: latest
-  nodeSelector:
-    kubernetes.io/hostname: worker-2
 
 prometheusOperator:
-  nodeSelector:
-    kubernetes.io/hostname: worker-2
 
 alertmanager:
   config:
@@ -101,5 +93,3 @@ alertmanager:
     resources:
       requests: {cpu: 10m, memory: 50Mi}
       limits: {memory: 120Mi}
-    nodeSelector:
-      kubernetes.io/hostname: worker-2
