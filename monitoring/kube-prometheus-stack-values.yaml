@@ -46,21 +46,6 @@ grafana:
         hosts: [grafana.devopsians.local]
 
 alertmanager:
-  alertmanagerSpec:
-    replicas: 0
-    resources:
-      requests: {cpu: 10m, memory: 50Mi}
-      limits: {memory: 120Mi}
-
-kube-state-metrics:
-  image:
-    registry: docker.io
-    repository: bitnamilegacy/kube-state-metrics
-    tag: latest
-
-prometheusOperator:
-
-alertmanager:
   config:
     route:
       receiver: telegram
@@ -77,7 +62,7 @@ alertmanager:
       - name: telegram
         telegram_configs:
           - bot_token_file: /etc/alertmanager/secrets/telegram-bot-token/token
-            chat_id: 624041091
+            chat_id: -1001234567890
             parse_mode: HTML
             send_resolved: true
             message: |
@@ -88,8 +73,17 @@ alertmanager:
               {{ .Annotations.description }}
               {{ end }}
   alertmanagerSpec:
+    replicas: 0
     secrets:
       - telegram-bot-token
     resources:
       requests: {cpu: 10m, memory: 50Mi}
       limits: {memory: 120Mi}
+
+kube-state-metrics:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/kube-state-metrics
+    tag: latest
+
+prometheusOperator: {}
