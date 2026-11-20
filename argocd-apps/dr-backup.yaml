@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dr-backup
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: git@195.24.237.134:devops/devopsians-gitops.git
+    targetRevision: main
+    path: dr
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: production
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: redis-backup
+  namespace: production
+spec:
+  schedule: "*/15 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: backup
+              image: docker.io/library/redis-backup:2
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: REDIS_HOST
+                  value: devopsians-production-redis
+                - name: MINIO_ENDPOINT
+                  value: "192.168.179.160:9000"
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef: {name: minio-backup-creds, key: AWS_ACCESS_KEY_ID}
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef: {name: minio-backup-creds, key: AWS_SECRET_ACCESS_KEY}
+                - name: BACKUP_PASSPHRASE
+                  valueFrom:
+                    secretKeyRef: {name: backup-encryption-key, key: passphrase}
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  set -eu
+                  TS=$(date +%Y%m%d-%H%M%S)
+                  redis-cli -h "$REDIS_HOST" --rdb /tmp/dump.rdb
+                  openssl enc -aes-256-cbc -pbkdf2 -salt -pass env:BACKUP_PASSPHRASE \
+                    -in /tmp/dump.rdb -out /tmp/redis-$TS.rdb.enc
+                  export MC_HOST_bk="http://${AWS_ACCESS_KEY_ID}:${AWS_SECRET_ACCESS_KEY}@${MINIO_ENDPOINT}"
+                  mc cp /tmp/redis-$TS.rdb.enc bk/k3s-backups/redis/redis-$TS.rdb.enc
+                  echo "backup ok: redis-$TS.rdb.enc"
+              resources:
+                requests: {cpu: 20m, memory: 32Mi}
+                limits: {memory: 128Mi}
