@@ -19,12 +19,17 @@ spec:
       labels:
         app: {{ .Release.Name }}-fastapi
     spec:
+      terminationGracePeriodSeconds: 30
       {{- with .Values.fastapi.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
         - name: fastapi
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep", "10"]
           image: "{{ .Values.fastapi.image.repository }}:{{ .Values.fastapi.image.tag }}"
           imagePullPolicy: {{ .Values.fastapi.image.pullPolicy }}
           ports:
