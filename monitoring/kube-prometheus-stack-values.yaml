@@ -26,7 +26,6 @@ prometheus:
         hosts: [prometheus.devopsians.local]
 
 grafana:
-  replicas: 0
   adminPassword: "CHANGE_ME"
   resources:
     requests: {cpu: 50m, memory: 200Mi}
@@ -73,7 +72,6 @@ alertmanager:
               {{ .Annotations.description }}
               {{ end }}
   alertmanagerSpec:
-    replicas: 0
     secrets:
       - telegram-bot-token
     resources:
